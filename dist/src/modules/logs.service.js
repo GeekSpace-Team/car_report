@@ -38,7 +38,7 @@ logsService.get("/all-logs", (req, res) => __awaiter(void 0, void 0, void 0, fun
     res.json(result);
 }));
 logsService.get("/get-dashboard", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j;
     const one = yield elasticsearch_connection_1.default.search({
         index: index,
         size: 0,
@@ -153,6 +153,7 @@ logsService.get("/get-dashboard", (req, res) => __awaiter(void 0, void 0, void 0
         },
     });
     const seven = yield elasticsearch_connection_1.default.search({
+        index: index,
         size: 10,
         sort: [
             {
@@ -162,6 +163,31 @@ logsService.get("/get-dashboard", (req, res) => __awaiter(void 0, void 0, void 0
             },
         ],
     });
+    const eight = yield elasticsearch_connection_1.default.search({
+        index: index,
+        size: 0,
+        track_total_hits: true,
+        aggs: {
+            price_avg: {
+                avg: {
+                    field: "bahasy",
+                    missing: 10,
+                },
+            },
+            brand_count: {
+                cardinality: {
+                    field: "markasy",
+                    precision_threshold: 100,
+                },
+            },
+            model_count: {
+                cardinality: {
+                    field: "ady",
+                    precision_threshold: 100,
+                },
+            },
+        },
+    });
     res.json({
         average_price_over_time: (_a = one.aggregations) === null || _a === void 0 ? void 0 : _a.average_price_over_time,
         brand_price_comparison: (_b = two.aggregations) === null || _b === void 0 ? void 0 : _b.brand_price_comparison,
@@ -170,5 +196,9 @@ logsService.get("/get-dashboard", (req, res) => __awaiter(void 0, void 0, void 0
         daily_upload_trends: (_e = five.aggregations) === null || _e === void 0 ? void 0 : _e.daily_upload_trends,
         price_correlation_year: (_f = six.aggregations) === null || _f === void 0 ? void 0 : _f.price_correlation_year,
         top: seven.hits.hits,
+        total: eight.hits.total,
+        price_avg: (_g = eight.aggregations) === null || _g === void 0 ? void 0 : _g.price_avg,
+        brand_count: (_h = eight.aggregations) === null || _h === void 0 ? void 0 : _h.brand_count,
+        model_count: (_j = eight.aggregations) === null || _j === void 0 ? void 0 : _j.model_count,
     });
 }));

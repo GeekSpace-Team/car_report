@@ -17,6 +17,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const elasticsearch_connection_1 = __importDefault(require("./database/elasticsearch.connection"));
 const convert_excel_to_json_1 = __importDefault(require("convert-excel-to-json"));
 const multer_1 = __importDefault(require("multer"));
+const cors_1 = __importDefault(require("cors"));
 const logs_service_1 = require("./modules/logs.service");
 dotenv_1.default.config();
 const storage = multer_1.default.diskStorage({
@@ -31,6 +32,7 @@ const storage = multer_1.default.diskStorage({
 const upload = (0, multer_1.default)({ storage: storage });
 const app = (0, express_1.default)();
 const port = process.env.PORT || 3000;
+app.use((0, cors_1.default)());
 app.use("/public", express_1.default.static("public"));
 app.use("/api", logs_service_1.logsService);
 app.get("/create-index", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
