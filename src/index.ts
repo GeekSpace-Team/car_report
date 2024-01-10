@@ -4,6 +4,8 @@ import client from "./database/elasticsearch.connection";
 import excelToJson from "convert-excel-to-json";
 import path from "path";
 import multer from "multer";
+import cors from "cors";
+import { logsService } from "./modules/logs.service";
 
 dotenv.config();
 
@@ -24,7 +26,9 @@ const upload = multer({ storage: storage });
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
+app.use(cors());
 app.use("/public", express.static("public"));
+app.use("/api", logsService);
 app.get("/create-index", async (req: Request, res: Response) => {
   try {
     await client.indices.create({
