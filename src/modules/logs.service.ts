@@ -24,6 +24,61 @@ logsService.get("/all-logs", async (req: Request, res: Response) => {
   res.json(result);
 });
 
+logsService.post("/write-data", async (req: Request, res: Response) => {
+  const {
+    body,
+    name,
+    phone,
+    type,
+    date_own,
+    duration,
+    status,
+    latitude,
+    longitude,
+  } = req.body;
+
+  const data = await client.index({
+    index: "kbana_t_2",
+    body: {
+      body,
+      name,
+      phone,
+      type,
+      date_own,
+      duration,
+      status,
+      latitude,
+      longitude,
+      created_at: new Date(),
+    },
+  });
+  res.json(data);
+});
+
+logsService.post("/write-multiple", async (req: Request, res: Response) => {
+  const { data } = req.body;
+
+  const body = data.flatMap((doc: any) => [
+    { index: { _index: "kbana_t_2" } },
+    {
+      name: doc.name,
+      phone: doc.phone,
+      type: doc.type,
+      date_own: doc.date_own,
+      duration: doc.duration,
+      status: doc.status,
+      latitude: doc.latitude,
+      longitude: doc.longitude,
+      created_at: new Date(),
+    },
+  ]);
+
+  const result = await client.bulk({ body });
+
+  // Check the result as needed
+  console.log(result);
+});
+
 logsService.get("/get-dashboard", async (req: Request, res: Response) => {
   const one = await client.search({
     index: index,
