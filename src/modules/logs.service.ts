@@ -77,6 +77,7 @@ logsService.post("/write-multiple", async (req: Request, res: Response) => {
 
   // Check the result as needed
   console.log(result);
+  res.json(result);
 });
 
 logsService.get("/get-dashboard", async (req: Request, res: Response) => {
