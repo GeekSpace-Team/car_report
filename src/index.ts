@@ -27,6 +27,7 @@ const upload = multer({ storage: storage });
 const app: Express = express();
 const port = process.env.PORT || 3000;
 app.use(cors());
+app.use(express.json());
 app.use("/public", express.static("public"));
 app.use("/api", logsService);
 app.get("/create-index", async (req: Request, res: Response) => {
