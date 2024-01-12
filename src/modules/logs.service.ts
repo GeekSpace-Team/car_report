@@ -61,6 +61,7 @@ logsService.post("/write-multiple", async (req: Request, res: Response) => {
   const body = data.flatMap((doc: any) => [
     { index: { _index: "kbana_t_2" } },
     {
+      body: doc.body,
       name: doc.name,
       phone: doc.phone,
       type: doc.type,
