@@ -6,6 +6,8 @@ import path from "path";
 import multer from "multer";
 import cors from "cors";
 import { logsService } from "./modules/logs.service";
+import { ChechPrice } from "./core/price-checker";
+import brandsService from "./modules/brands.service";
 
 dotenv.config();
 
@@ -28,8 +30,10 @@ const app: Express = express();
 const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
+app.use("/logos", express.static("logos"));
 app.use("/public", express.static("public"));
 app.use("/api", logsService);
+app.use("/brand", brandsService);
 app.get("/create-index", async (req: Request, res: Response) => {
   try {
     await client.indices.create({
@@ -81,25 +85,26 @@ app.post(
 
     const d = new Date();
 
-    const bulkRequestBody = result.otcot.flatMap((doc) => [
-      {
-        index: {
-          _index: "report_car",
-          _type: "_doc",
-          _id: `${doc.A}_${doc.B}_${doc.C}_${doc.D}_${d.getDay()}_${
-            d.getMonth() + 1
-          }_${d.getFullYear()}`,
+    const bulkRequestBody = result.otcot
+      .filter((_, index) => index > 0)
+      .flatMap((doc) => [
+        {
+          index: {
+            _index: "report_car",
+            _id: `${doc.A}_${doc.B}_${doc.C}_${doc.D}_${d.getDay()}_${
+              d.getMonth() + 1
+            }_${d.getFullYear()}`,
+          },
         },
-      },
-      {
-        markasy: doc.A,
-        ady: doc.B,
-        yyly: doc.C,
-        bahasy: doc.D,
-        created_at: new Date(),
-        full: `${doc.A} ${doc.B} ${doc.C} ${doc.D}`,
-      },
-    ]);
+        {
+          markasy: doc.A,
+          ady: doc.B,
+          yyly: doc.C,
+          bahasy: ChechPrice(doc.D),
+          created_at: new Date(),
+          full: `${doc.A} ${doc.B} ${doc.C} ${doc.D}`,
+        },
+      ]);
 
     try {
       const { errors, items } = await client.bulk({
@@ -107,12 +112,12 @@ app.post(
         body: bulkRequestBody,
       });
       if (errors) {
-        console.error(errors);
+        console.dir(errors);
       } else {
         console.log(items);
       }
     } catch (error) {
-      console.error(error);
+      console.dir(error);
     }
 
     // const result = await client.search({});
