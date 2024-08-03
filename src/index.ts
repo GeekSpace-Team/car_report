@@ -83,6 +83,16 @@ app.post(
       sourceFile: `${req.file?.path}`,
     });
 
+    let { reportDate } = req.body;
+
+    if (
+      typeof reportDate === "undefined" ||
+      reportDate == null ||
+      reportDate == ""
+    ) {
+      reportDate = new Date();
+    }
+
     const d = new Date();
 
     const bulkRequestBody = result.otcot
@@ -101,7 +111,7 @@ app.post(
           ady: doc.B,
           yyly: doc.C,
           bahasy: ChechPrice(doc.D),
-          created_at: new Date(),
+          created_at: reportDate,
           full: `${doc.A} ${doc.B} ${doc.C} ${doc.D}`,
         },
       ]);
