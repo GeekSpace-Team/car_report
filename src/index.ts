@@ -114,7 +114,7 @@ app.post(
           ady: doc.B,
           yyly: doc.C,
           bahasy: ChechPrice(doc.D),
-          created_at: doc.F ? new Date(doc.FC) : reportDate,
+          created_at: doc.F ? getDate(doc.F) : reportDate,
           color: doc.E,
           full: `${doc.A} ${doc.B} ${doc.C} ${doc.D}`,
         },
@@ -141,6 +141,23 @@ app.post(
     res.json(result);
   }
 );
+
+function getDate(dateString: string): Date {
+  console.log(dateString);
+  try {
+    const dateParts = dateString.split(".");
+
+    // Create a new Date object
+    // Note: Months are 0-indexed in JavaScript, so we subtract 1 from the month.
+    return new Date(
+      Number(dateParts[0]),
+      Number(dateParts[1]),
+      Number(dateParts[2])
+    );
+  } catch (err) {
+    return new Date();
+  }
+}
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
