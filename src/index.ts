@@ -55,6 +55,9 @@ app.get("/create-index", async (req: Request, res: Response) => {
           bahasy: {
             type: "integer",
           },
+          color: {
+            type: "keyword",
+          },
           created_at: {
             type: "date",
           },
@@ -111,10 +114,14 @@ app.post(
           ady: doc.B,
           yyly: doc.C,
           bahasy: ChechPrice(doc.D),
-          created_at: reportDate,
+          created_at: doc.F ? new Date(doc.FC) : reportDate,
+          color: doc.E,
           full: `${doc.A} ${doc.B} ${doc.C} ${doc.D}`,
         },
       ]);
+
+    // renki doc.E
+    // senesi doc.F
 
     try {
       const { errors, items } = await client.bulk({
