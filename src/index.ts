@@ -8,8 +8,18 @@ import cors from "cors";
 import { logsService } from "./modules/logs.service";
 import { ChechPrice } from "./core/price-checker";
 import brandsService from "./modules/brands.service";
+import { Pool } from "pg";
+import format from "pg-format";
 
 dotenv.config();
+
+const pool = new Pool({
+  user: "postgres",
+  host: "localhost",
+  database: "report_db",
+  password: process.env.PG_PASSWORD,
+  port: 5432,
+});
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -129,21 +139,50 @@ app.post(
         body: bulkRequestBody,
       });
       if (errors) {
-        console.dir(errors);
+        res.send(errors);
       } else {
-        console.log(items);
+        const values = await processDocuments(result, reportDate, d);
+        const sql = format(
+          `INSERT INTO report_car (markasy,ady,yyly,bahasy,created_at,color,"full", e_id) VALUES %L`,
+          values
+        );
+        await pool.query(sql);
+        res.json(values);
       }
     } catch (error) {
-      console.dir(error);
+      res.send(error);
     }
 
     // const result = await client.search({});
-    res.json(result);
   }
 );
 
+const processDocuments = async (result, reportDate, d) => {
+  const values: any[] = [];
+  const filtered = result.otcot.filter((_, index) => index > 0);
+
+  await Promise.all(
+    filtered.map(async (doc: any, i) => {
+      values.push([
+        doc.A,
+        doc.B,
+        doc.C,
+        ChechPrice(doc.D),
+        doc.F ? getDate(doc.F) : reportDate,
+        doc.E,
+        `${doc.A} ${doc.B} ${doc.C} ${doc.D}`,
+        `${doc.A}_${doc.B}_${doc.C}_${doc.D}_${d.getDay()}_${
+          d.getMonth() + 1
+        }_${d.getFullYear()}`,
+      ]);
+    })
+  );
+
+  return values;
+};
+
 function getDate(dateString: string): Date {
-  console.log(dateString);
+  // console.log(dateString);
   try {
     const dateParts = dateString.split(".");
 
