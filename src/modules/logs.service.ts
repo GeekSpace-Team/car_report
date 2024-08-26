@@ -102,6 +102,10 @@ logsService.get("/all-logs", async (req: Request, res: Response) => {
       },
     ],
   });
+  let pageCount = 0;
+  try {
+    pageCount = Math.ceil(Number(result!.hits!.total!["value"]) / size);
+  } catch (err) {}
   result = {
     ...result,
     hits: {
