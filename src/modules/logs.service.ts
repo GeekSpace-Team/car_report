@@ -120,7 +120,10 @@ logsService.get("/all-logs", async (req: Request, res: Response) => {
       }),
     },
   };
-  res.json(result);
+  res.json({
+    ...result,
+    pageCount: pageCount,
+  });
 });
 
 logsService.get("/get-dashboard", async (req: Request, res: Response) => {
